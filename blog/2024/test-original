@@ -1,1 +1,703 @@
 
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+
+    
+    <meta charset="UTF-8">
+
+<!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Collection Of Bash Tips - A Test Page | CBAY</title>
+<meta name="generator" content="Jekyll v3.9.0" />
+<meta property="og:title" content="Collection Of Bash Tips" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Areg Sarkissians Blog" />
+<meta property="og:description" content="Areg Sarkissians Blog" />
+<link rel="canonical" href="https://aregsar.com/blog/2020/collection-of-bash-tips/" />
+<meta property="og:url" content="https://aregsar.com/blog/2020/collection-of-bash-tips/" />
+<meta property="og:site_name" content="aregsar" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Collection Of Bash Tips" />
+<script type="application/ld+json">
+{"headline":"Collection Of Bash Tips - a TEST PAGE","description":"CBAY Blog","url":"https://aregsar.com/blog/2020/collection-of-bash-tips/","@type":"WebPage","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="/assets/css/style.css?v=f080d0789ed6a9d9e79322d80a8436a00cb5413b">
+  </head>
+  <body>
+    <header class="page-header"
+    role="banner">
+      <h1 class="project-CBAY</h1>
+    </header>
+    <main id="content" class="main-content" role="main">
+      <a href="https://aregsar.com">Posts</a> | <a href="https://aregsar.com/about">About</a>
+      <h1 id="collection-of-bash-tips">Collection Of Bash Tips</h1>
+
+<p>October 22, 2024 by <a href="https://cbay.au/about">CBAY</a></p>
+
+<p>This post list a collection of bash commands and scripts that I have collected over the years to be used as a reference.</p>
+
+<p>I also list resources on various bash topics at the end of the post.</p>
+
+<h2 id="list-processes-running-on-system">list processes running on system</h2>
+
+<p>Use the <code class="language-plaintext highlighter-rouge">ps</code> command to list processes running on the system:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ps aux | <span class="nb">grep </span>php
+</code></pre></div></div>
+
+<p>Flags:</p>
+
+<p>a = show rows processes for users attached to terminal session
+u = display the process’s user/owner
+x = also show rows of processes not attached to a terminal</p>
+
+<p>Using any the above flags will display all columns.</p>
+
+<p>Instead we can use the <code class="language-plaintext highlighter-rouge">-Ao</code> flag with only the specific columns names that we want displayed:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># only display uid,user,pid and command columns in output</span>
+ps <span class="nt">-Ao</span> uid,user,pid,command | <span class="nb">grep </span>php
+</code></pre></div></div>
+
+<h2 id="check-servers-running-on-ports">Check servers running on ports</h2>
+
+<p>Command to show network statistics:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>netstat <span class="nt">-anv</span>
+</code></pre></div></div>
+
+<p>Flags:</p>
+
+<p>-a Displays all active TCP connections and the TCP and UDP ports on which the computer is listening.
+-n Displays active TCP connections, however, addresses and port numbers are expressed numerically
+-v Displays active TCP connections and includes the process ID (PID) for each connection</p>
+
+<p>Example to list servers listening on port 80:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>netstat <span class="nt">-anv</span> | <span class="nb">grep</span> <span class="s2">"</span><span class="se">\.</span><span class="s2">80"</span> | <span class="nb">grep </span>LISTEN
+</code></pre></div></div>
+
+<p>Example to list server using port 9000:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>netstat <span class="nt">-anv</span> | <span class="nb">grep </span>9000
+</code></pre></div></div>
+
+<h2 id="watching-processes">Watching processes</h2>
+
+<p>The watch command can be used along with the <code class="language-plaintext highlighter-rouge">ps aux</code> command to poll and display process statistics continuously:</p>
+
+<blockquote>
+  <p>Watch can be used to monitor other commands whose output would change over time.</p>
+</blockquote>
+
+<p>Install on Mac</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>brew <span class="nb">install </span>watch
+</code></pre></div></div>
+
+<p>Examples:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#Watch command to watch the foo process</span>
+watch <span class="s1">'ps aux | grep foo'</span>
+
+<span class="c">#this wont work since it will execute watch over 'ps' command instead of result of entire command chain</span>
+watch ps aux | <span class="nb">grep </span>foo
+
+<span class="c">#watch all processes</span>
+watch <span class="s1">'ps aux'</span>
+</code></pre></div></div>
+
+<h2 id="tailing-files">tailing files</h2>
+
+<p>The tail command allows you to tail updates to files. Useful in monitoring log files</p>
+
+<p>Example of how it works:</p>
+
+<p>Create and tail a new test file:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">touch </span>testfile
+<span class="nb">tail</span> <span class="nt">-F</span> testfile
+</code></pre></div></div>
+
+<p>launch another terminal tab and change to the <code class="language-plaintext highlighter-rouge">testfile</code> file directory:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s1">'abcd'</span> <span class="o">&gt;&gt;</span> testfile
+<span class="c"># check the content of the file</span>
+<span class="nb">cat </span>testfile
+</code></pre></div></div>
+
+<p>Switch back to the previous tab an see the output of tail command.</p>
+
+<h2 id="bash-command-tips">bash command tips</h2>
+
+<p>Various bash command tips</p>
+
+<h3 id="stdout-stderr-and-redirects">stdout, stderr and redirects</h3>
+
+<p>Many bash commands use stdin, stdout and stderr that are represented using file descriptor numbers:</p>
+
+<p>stdin =&gt; 0
+stdout =&gt; 1
+stderr =&gt; 2</p>
+
+<p>File Descriptor symbols allow redirects to point to the stdout and stderr file descriptors.</p>
+
+<p>Below are the file descriptor symbols for stdin and stdout:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># filedescriptor 1 symbol for stdout</span>
+&amp;1
+
+<span class="c"># filedescriptor 2 symbol for stder</span>
+&amp;2
+</code></pre></div></div>
+
+<p>Redirect symbols point the specified or default descriptor to a destination file where the content written to that descriptor will be sent to:</p>
+
+<p>Below are the redirect symbols for stdin and stdout:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#redirect stdout file descriptor 1</span>
+1&gt;
+
+<span class="c">#redirect stdout file descriptor 1. File descriptor 1 is assumed as the default.</span>
+<span class="o">&gt;</span>
+
+<span class="c">#redirect stderr file descriptor 2</span>
+2&gt;
+</code></pre></div></div>
+
+<p>These redirect symbols will overwrite the content of the destination they redirect to, if the command is re executed.
+If we want to redirect and append the outputs of the command we need to use the append version of the symbols shown below:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#redirect and append stdout file descriptor 1</span>
+1&gt;&gt;
+
+<span class="c">#redirect and append stdout file descriptor 1. File descriptor 1 is assumed as the default.</span>
+<span class="o">&gt;&gt;</span>
+
+<span class="c">#redirect and append stderr file descriptor 2</span>
+2&gt;&gt;
+</code></pre></div></div>
+
+<p>We can use the stdout redirect symbol to redirect output of a command written to stdout to a file instead using the default stdout redirect symbol:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>some_command <span class="o">&gt;</span> some_file
+</code></pre></div></div>
+
+<p>Or the equivalent using the explicit stdout redirect symbol:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>some_command 1&gt; some_file
+</code></pre></div></div>
+
+<p>We can also redirect any errors from a command written to stderr to a file instead.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>some_command_with_errors 2&gt; some_file
+</code></pre></div></div>
+
+<p>Some examples below:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#echo text to standar output</span>
+<span class="nb">echo</span> <span class="s1">'abcd'</span>
+<span class="c">#echo text to standard output that is redirected to a file</span>
+<span class="nb">echo</span> <span class="s1">'abcd'</span> <span class="o">&gt;</span> testfile
+<span class="nb">echo</span> <span class="s1">'xyz'</span> <span class="o">&gt;&gt;</span> testfile
+
+<span class="c">#echo text to standard output that is redirected to a file</span>
+<span class="nb">echo</span> <span class="s1">'abcd'</span> 1&gt; testfile
+<span class="nb">echo</span> <span class="s1">'xyz'</span> 1&gt;&gt; testfile
+
+<span class="c">#redirect error output of the failed ls command to the test file</span>
+<span class="nb">ls</span> <span class="nt">-0</span> 2&gt; testfile
+<span class="nb">ls</span> <span class="nt">-0</span> 2&gt;&gt; testfile
+</code></pre></div></div>
+
+<p>We can redirect the stderr to the stdout file descriptor as well
+using the expression <code class="language-plaintext highlighter-rouge">2&gt;&amp;1</code> which is the concatenation of the <code class="language-plaintext highlighter-rouge">2&gt;</code> stderr redirect to the <code class="language-plaintext highlighter-rouge">&amp;1</code> stdout file descriptor.
+This will be useful in commands with multiple redirects that we will see in the next section.</p>
+
+<h3 id="multiple-redirects">Multiple redirects</h3>
+
+<p>The redirect symbol <code class="language-plaintext highlighter-rouge">&gt;</code> or append redirect symbols <code class="language-plaintext highlighter-rouge">&gt;&gt;</code> can be used more then once at the end of the command line to redirect stdin or stderr.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#echo text to standard output, standard error is redirected to standard output and standard output is redirected to file</span>
+<span class="c">#the first redirect symbol redirets the output of some_command to somefile</span>
+<span class="c"># the secont redirect symbol in 2&gt;&amp;1 redirects the standard error represented by the file descriptor 2 to the standard</span>
+<span class="c">#outout represented by the &amp;1</span>
+some_command <span class="o">&gt;</span> somefile 2&gt;&amp;1
+
+<span class="c">#the reverse will not work to send the stderror content into somefile since the the stderror is redirected to stdout before</span>
+<span class="c">#the standard out is redirected to somefile.</span>
+some_command 2&gt;&amp;1 <span class="o">&gt;</span> somefile
+
+<span class="c">#There is a shorthand that is the equivalent:</span>
+some_command &amp;&gt; somefile
+</code></pre></div></div>
+
+<p>Below are examples:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#The following three echo commands are equivalent:</span>
+<span class="nb">echo</span> <span class="s1">'abcd'</span> <span class="o">&gt;</span> testfile 2&gt;&amp;1
+<span class="nb">echo</span> <span class="s1">'abcd'</span> 1&gt;testfile 2&gt;&amp;1
+<span class="nb">echo</span> <span class="s1">'abcd'</span> &amp;&gt; testfile
+
+<span class="c">#The following three echo commands are equivalent:</span>
+<span class="c">#here the stdout and std in are redirected to /dev/null instead of a file</span>
+<span class="nb">echo</span> <span class="s1">'abcd'</span> <span class="o">&gt;</span> /dev/null 2&gt;&amp;1
+<span class="nb">echo</span> <span class="s1">'abcd'</span> 1&gt; /dev/null 2&gt;&amp;1
+<span class="nb">echo</span> <span class="s1">'abcd'</span> &amp;&gt; /dev/null
+
+<span class="c">#Of course the above will not generate any erros. so a more practical example</span>
+<span class="c">#can use the ls command with an invalid flag to generate an error:</span>
+<span class="c">#redirect to file and redirect error to output to same file</span>
+<span class="nb">ls</span> <span class="nt">-0</span> <span class="o">&gt;</span> testfile 2&gt;&amp;1
+
+<span class="c">#or to suppress any output</span>
+<span class="nb">ls</span> <span class="nt">-0</span> <span class="o">&gt;</span> /dev/null 2&gt;&amp;1
+
+<span class="c">#If we send stdin and stdout to same text file the effect is not the same as the ouput from each will not get interleaved</span>
+<span class="nb">ls</span> <span class="nt">-0</span> <span class="o">&gt;</span>testfile 2&gt;testfile
+
+<span class="c">#redirect to separate files (note testfile1 will be empty since we only have stderr outout)</span>
+<span class="nb">ls</span> <span class="nt">-0</span> <span class="o">&gt;</span>testfile1 2&gt;testfile2
+
+<span class="c">#a valid ls command will have an empty testfile1 file because we will only have stdout output)</span>
+<span class="nb">ls</span> <span class="o">&gt;</span>testfile1 2&gt;testfile2
+
+<span class="c">#A more practical examlple is this command to run the laravel scheduler as a cron job</span>
+<span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="nb">cd</span> /PATH-TO-LARAVEL-APP <span class="o">&amp;&amp;</span> php artisan schedule:run <span class="o">&gt;&gt;</span> /dev/null 2&gt;&amp;1
+</code></pre></div></div>
+
+<h3 id="dump-all-environment-variables">dump all environment variables</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">env</span>
+</code></pre></div></div>
+
+<h3 id="variable-interpolation">Variable interpolation</h3>
+
+<p>To interpolate the variable <code class="language-plaintext highlighter-rouge">$var</code> use <code class="language-plaintext highlighter-rouge">${var}</code>.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">{}</code> brackets wrapped around text portion of a variable <code class="language-plaintext highlighter-rouge">$var</code> means that the contents of the variable <code class="language-plaintext highlighter-rouge">var</code> is interpolated with the surrounding text.</p>
+
+<p>Otherwise <code class="language-plaintext highlighter-rouge">$varabcd</code> would be assumed the <code class="language-plaintext highlighter-rouge">$varabcd</code> variable, instead of the <code class="language-plaintext highlighter-rouge">$var</code> variable followed by the text <code class="language-plaintext highlighter-rouge">abcd</code> like <code class="language-plaintext highlighter-rouge">${var}abcd</code> would.</p>
+
+<h3 id="command-evaluation">Command evaluation</h3>
+
+<p>To evaluate a command and interpolate its output with surrounding text use the $() wrapper around the command.</p>
+
+<p>The format is $(command):</p>
+
+<p>Example:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#interpolate the path of the python executable determined using the `which python` command.</span>
+<span class="nb">export </span><span class="nv">PYTHON_HOME</span><span class="o">=</span><span class="se">\$</span><span class="o">(</span>which python<span class="o">)</span>
+</code></pre></div></div>
+
+<h3 id="open-html-file-or-url-in-default-browser">Open html file or URL in default browser</h3>
+
+<p>$ open index.html
+$ open https://www.google.com</p>
+
+<h3 id="insert-newline-into-file">Insert newline into file</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">echo</code> command will by default add a newline after the text we echo to a file. So everytime we append another string to the file using echo, the new string will appear on the next line.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"hello"</span> <span class="o">&gt;</span> <span class="nb">test
+echo</span> <span class="s2">"world"</span> <span class="o">&gt;&gt;</span> <span class="nb">test
+cat test</span>
+</code></pre></div></div>
+
+<p>Adding the <code class="language-plaintext highlighter-rouge">\n</code> character at the end of the string will insert an additional newline.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"hello</span><span class="se">\n</span><span class="s2">"</span> <span class="o">&gt;</span> <span class="nb">test
+echo</span> <span class="s2">"world"</span> <span class="o">&gt;&gt;</span> <span class="nb">test
+cat test</span>
+</code></pre></div></div>
+
+<p>We can add as many <code class="language-plaintext highlighter-rouge">\n</code> characters at the end of the string to insert more newlines</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"hello</span><span class="se">\n\n\n\n</span><span class="s2">"</span> <span class="o">&gt;</span> <span class="nb">test
+echo</span> <span class="s2">"world"</span> <span class="o">&gt;&gt;</span> <span class="nb">test
+cat test</span>
+</code></pre></div></div>
+
+<p>The newline can placed anywhere within the string as well to insert newline between text</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"hello</span><span class="se">\n</span><span class="s2">world"</span> <span class="o">&gt;</span> <span class="nb">test
+cat test
+
+echo</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">hello</span><span class="se">\n</span><span class="s2">world"</span> <span class="o">&gt;</span> <span class="nb">test
+cat test</span>
+</code></pre></div></div>
+
+<h3 id="multiline-interactive-input">multiline interactive input</h3>
+
+<p>By using the <code class="language-plaintext highlighter-rouge">EOL</code> symbol with the <code class="language-plaintext highlighter-rouge">cat</code> command we can interactively add more lines until the closing <code class="language-plaintext highlighter-rouge">EOL</code> symbol on the last line completes the command.</p>
+
+<p>the stdin redirect symbol <code class="language-plaintext highlighter-rouge">&lt;&lt;</code> is used to redirect input lines typed in interactively in the terminal as stdin that then get redirected to stdout using the stdout symbol <code class="language-plaintext highlighter-rouge">&gt;</code>. The <code class="language-plaintext highlighter-rouge">EOL</code> as the session terminator keyword. Any other word can be used in its place as long as the word at both ends match. The keywords will not be added to the content of the file.</p>
+
+<blockquote>
+  <p>Note that if we had used the <code class="language-plaintext highlighter-rouge">&lt;</code> stdin redirection symbol <code class="language-plaintext highlighter-rouge">cat &gt; test &lt; EOL</code>, then <code class="language-plaintext highlighter-rouge">EOL</code> will be treated as a filename that is redirected by stdin, not an interactive session.</p>
+</blockquote>
+
+<p>Create file and add multiple lines:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat</span> <span class="o">&gt;</span> <span class="nb">test</span> <span class="o">&lt;&lt;</span> <span class="no">EOL</span><span class="sh">
+&gt; hello
+&gt; world
+&gt; EOL
+
+cat test
+</span></code></pre></div></div>
+
+<p>Keep appending more lines:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat</span> <span class="o">&gt;&gt;</span> <span class="nb">test</span> <span class="o">&lt;&lt;</span> <span class="no">EOL</span><span class="sh">
+&gt; once
+&gt; more
+&gt; EOL
+
+cat test
+</span></code></pre></div></div>
+
+<p>Overwrite content:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat</span> <span class="o">&gt;</span> <span class="nb">test</span> <span class="o">&lt;&lt;</span> <span class="no">EOL</span><span class="sh">
+&gt; hello
+&gt; again
+&gt; EOL
+
+cat test
+</span></code></pre></div></div>
+
+<p>We can use any characters as the terminator as long as both sides match.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat</span> <span class="o">&gt;</span> <span class="nb">test</span> <span class="o">&lt;&lt;</span> <span class="no">MYTerm</span><span class="sh">
+&gt; hello
+&gt; world
+&gt; MYTERM
+
+cat test
+</span></code></pre></div></div>
+
+<h3 id="multiline-input-in-a-shell-script">multiline input in a shell script</h3>
+
+<p>First we create a shell script file:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">touch </span>multilinescript
+</code></pre></div></div>
+
+<p>Then we add the following to the multilinescript script file:</p>
+
+<blockquote>
+  <p>We can actually be recursive and interactively add content to the multilinescript file using the iteractive multiline technique we learned in last section!</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="nb">cat</span> <span class="o">&gt;</span> <span class="nb">test</span> <span class="o">&lt;&lt;</span> <span class="no">EOL</span><span class="sh">
+hello
+world
+script
+</span><span class="no">EOL
+</span></code></pre></div></div>
+
+<p>Run the script:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#give execute permissions to owner</span>
+<span class="nb">chmod </span>u+x multilinescript
+<span class="c">#execute the script</span>
+./multilinescript
+</code></pre></div></div>
+
+<p>The result will be a file names test created with following content:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hello
+world
+script
+</code></pre></div></div>
+
+<h2 id="cat-to-files">cat to files</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#create a file with some text</span>
+<span class="nb">echo</span> <span class="s1">'abcd'</span> <span class="o">&gt;</span> <span class="nb">test</span>
+
+<span class="c">#print to output</span>
+<span class="nb">cat test</span>
+
+<span class="c">#create a new file test1 from test file</span>
+<span class="nb">cat test</span> <span class="o">&gt;</span> test1
+
+<span class="c">#print to output</span>
+<span class="nb">cat </span>test1
+
+<span class="c">#append into test 1</span>
+<span class="nb">cat test</span> <span class="o">&gt;&gt;</span> test1
+
+<span class="c">#print to output</span>
+<span class="nb">cat </span>test1
+
+<span class="c">#create a new file test2 from test1 file</span>
+<span class="nb">cat </span>test1 <span class="o">&gt;</span> test2
+
+<span class="c">#print to output</span>
+<span class="nb">cat </span>test2
+
+<span class="c">#print concatenated files to output</span>
+<span class="nb">cat </span>test1 test2
+
+<span class="c">#concatenate both files into new file 3</span>
+<span class="nb">cat </span>test1 test2 <span class="o">&gt;</span> test3
+
+<span class="c">#print to output</span>
+<span class="nb">cat </span>test3
+
+<span class="c">#append concatenated file to test 3</span>
+<span class="nb">cat </span>test1 test2 <span class="o">&gt;&gt;</span> test3
+
+<span class="c">#print to output</span>
+<span class="nb">cat </span>test3
+</code></pre></div></div>
+
+<h2 id="cat-standard-input">cat standard input</h2>
+
+<p>We saw how use the cat command to output to a file, by interactive input through stdin.</p>
+
+<p>We can also use the cat command to get text from stdin and use the stdin redirect to redirect stdin to a file.</p>
+
+<p>Instead of explicitly having to specify <code class="language-plaintext highlighter-rouge">/dev/stdin</code>, The cat command also accepts a single dash character as a shorthand that is equivalent to <code class="language-plaintext highlighter-rouge">/dev/stding</code>.</p>
+
+<p>Both forms are shown in the example below:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat</span> ~/.ssh/id_rsa.pub | ssh root@&lt;YOUR_IP&gt; <span class="s1">'cat /dev/stdin &gt;&gt; ~/.ssh/authorized_keys'</span>
+
+<span class="c">#shorthand with `cat -`</span>
+<span class="nb">cat</span> ~/.ssh/id_rsa.pub | ssh root@&lt;YOUR_IP&gt; <span class="s1">'cat - &gt;&gt; ~/.ssh/authorized_keys'</span>
+</code></pre></div></div>
+
+<p>The cat command writes the id_rsa.pub to standard output of our local machine which is piped
+into the ssh command as standard input of the ssh command. Cat is then run on the remote machine via ssh
+command line argument that redirects the stdin to append the authorized_keys file using the <code class="language-plaintext highlighter-rouge">&gt;&gt;</code> append redirection symbol.</p>
+
+<h2 id="run-command-in-background">run command in background</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">command</span> &amp;
+<span class="nb">command</span> &amp;&gt;/dev/null &amp;
+ps <span class="nt">-eaf</span> | <span class="nb">grep </span>php
+<span class="c"># -A flag means Select all processes, including those of other users.</span>
+ps <span class="nt">-Ao</span> uid,user,pid,command | <span class="nb">grep </span>php
+<span class="c">#pid=1713</span>
+<span class="nb">kill </span>1713
+</code></pre></div></div>
+
+<h3 id="curl-command-piping">Curl command piping</h3>
+
+<p>Variations of the same command</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-o-</span> https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
+curl <span class="nt">-o</span> - https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
+</code></pre></div></div>
+
+<h3 id="wget-command-piping">Wget command piping</h3>
+
+<p>Variations of the same command</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget <span class="nt">-qO-</span> https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
+wget <span class="nt">-qO</span> - https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
+wget <span class="nt">-q</span> <span class="nt">-O-</span> https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
+wget <span class="nt">-q</span> <span class="nt">-O</span> - https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
+</code></pre></div></div>
+
+<h2 id="bash-script-tips">bash script tips</h2>
+
+<p>Various script file tips</p>
+
+<h3 id="give-executable-permissions-script">Give executable permissions Script</h3>
+
+<p>Assume we have a script file called myscript:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#make the script file executable</span>
+<span class="nb">chmod</span> +x myscript
+
+<span class="c">#execute the script</span>
+./myscript
+</code></pre></div></div>
+
+<h3 id="give-executable-permissions-script-for-owner-user-only">Give executable permissions Script for owner user only</h3>
+
+<p>Assume we have a script file called myscript:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#make the script file executable</span>
+<span class="nb">chmod </span>u+x myscript
+
+<span class="c">#execute the script</span>
+./myscript
+</code></pre></div></div>
+
+<h3 id="set-environment-variable-used-by-executed-script">set environment variable used by executed script</h3>
+
+<p>FOO=bar bash -c ‘command1 args’</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>FOO=bar bash -c ‘command1 args</td>
+      <td>command2’</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="setting-script-language">Setting Script language</h3>
+
+<p>starting a script file with the <code class="language-plaintext highlighter-rouge">#!</code> line tells the shell process running the script the interpreter to use to execute the script.</p>
+
+<p>Use explicit bash interpreter:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+</code></pre></div></div>
+
+<p>Alternate form, using the default bash interpreter:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env bash</span>
+</code></pre></div></div>
+
+<p>PHP script example:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/local/bin/php</span>
+</code></pre></div></div>
+
+<h3 id="script-error-flags">Script error flags</h3>
+
+<p>Use the set command to set the error handling strategy of the script.
+Include it after the first line <code class="language-plaintext highlighter-rouge">#!/usr/bin/env bash</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#exit script anywhere the in the command pipeline on error or unset variable</span>
+<span class="nb">set</span> <span class="nt">-euo</span> pipefail
+<span class="c">#also prints out commmands and arguments values that are executed</span>
+<span class="nb">set</span> <span class="nt">-euxo</span> pipefail
+</code></pre></div></div>
+
+<p>“-e” ensures that your script stops on first command failure.
+“-u” ensures that your script exits on the first unset variable encountered.
+“-o pipefail” ensures that if any command in a set of piped commands failed, the overall exit status is the status of the failed command</p>
+
+<h3 id="script-command-line-arguments">Script command line arguments</h3>
+
+<p><code class="language-plaintext highlighter-rouge">$*, $@, $# ,$0, $1</code> are used in bash script to refer to script and arguments</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>script <span class="nv">$arg1</span> <span class="nv">$arg2</span>
+</code></pre></div></div>
+
+<p>When <code class="language-plaintext highlighter-rouge">$\*</code> and <code class="language-plaintext highlighter-rouge">$@</code> are quoted:</p>
+
+<p><code class="language-plaintext highlighter-rouge">"$*"</code> quotes the entire list of arguments <code class="language-plaintext highlighter-rouge">"$arg1 $arg2"</code> output as a string</p>
+
+<p><code class="language-plaintext highlighter-rouge">"$@"</code> quotes all arguments individually <code class="language-plaintext highlighter-rouge">"$arg1" "$arg2"</code> output as a string</p>
+
+<p>When <code class="language-plaintext highlighter-rouge">$\*</code> and <code class="language-plaintext highlighter-rouge">$@</code> are not quoted they result the argument list as is and not quoted.</p>
+
+<p>Should not use without quotes because it will break if arguments contain spaces or wildcards.</p>
+
+<p>Example of a bash alias I setup in my <code class="language-plaintext highlighter-rouge">.zshrc</code> file that uses the <code class="language-plaintext highlighter-rouge">"$*"</code> arguments.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function </span>gg <span class="o">{</span>
+    <span class="c">#quote all arguments as a single message</span>
+    <span class="c">#so we can write commit message without quotes</span>
+    <span class="c">#gg this is my commit message sans quotes</span>
+    <span class="c">#note: commit message can not have quotes or left and right brackets</span>
+    <span class="k">if</span> <span class="o">!</span> <span class="o">[</span> <span class="nv">$# </span><span class="nt">-eq</span> 0 <span class="o">]</span>
+    <span class="k">then
+        </span>git add <span class="nt">-A</span>
+        git commit <span class="nt">-am</span> <span class="s2">"</span><span class="nv">$*</span><span class="s2">"</span>
+        git status
+    <span class="k">fi</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>This allows me to type in my git commit messages like so:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gg my new commit
+</code></pre></div></div>
+
+<p>Which will transform to:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git commit <span class="nt">-am</span> <span class="s2">"my new commit"</span>
+</code></pre></div></div>
+
+<p>This is because <code class="language-plaintext highlighter-rouge">$*</code> representing the entire <code class="language-plaintext highlighter-rouge">my new commit</code> arguments is wrapped in quotes.</p>
+
+<p>Also note the script checks that the number of arguments to the <code class="language-plaintext highlighter-rouge">gg</code> command is not zero using:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#number of arguments</span>
+<span class="nv">$#</span>
+</code></pre></div></div>
+
+<p>We could refer to the script text <code class="language-plaintext highlighter-rouge">gg</code> using the <code class="language-plaintext highlighter-rouge">$0</code>.</p>
+
+<p>We could also refer to the <code class="language-plaintext highlighter-rouge">my</code> argument using <code class="language-plaintext highlighter-rouge">$1</code>, the <code class="language-plaintext highlighter-rouge">new</code> argument using <code class="language-plaintext highlighter-rouge">$2</code> and so on.</p>
+
+<h2 id="permissions">permissions</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="nv">$USER</span>
+<span class="nb">sudo chown</span> <span class="nt">-R</span> <span class="nv">$USER</span>:<span class="nv">$USER</span> /var/www
+<span class="nb">sudo chmod</span> <span class="nt">-R</span> 755 /var/www
+
+<span class="nb">cd</span> /var/www/myapp
+<span class="nb">sudo chown</span> <span class="nt">-R</span> www-data: storage bootstrap
+</code></pre></div></div>
+
+<h2 id="grep">grep</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> /usr/local/bin <span class="o">&amp;&amp;</span> la | <span class="nb">grep </span>code
+<span class="nb">cd</span> /usr/local/bin <span class="o">&amp;&amp;</span> la | <span class="nb">grep </span>subl
+<span class="nb">cd</span> /usr/local/bin <span class="o">&amp;&amp;</span> la | <span class="nb">grep </span>pstorm
+</code></pre></div></div>
+
+<h2 id="find">find</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@localhost:~# find / <span class="se">\(</span> <span class="nt">-iname</span> <span class="s2">"php.ini"</span> <span class="nt">-o</span> <span class="nt">-name</span> <span class="s2">"www.conf"</span> <span class="se">\)</span>
+/etc/php/7.0/fpm/php.ini
+/etc/php/7.0/fpm/pool.d/www.conf
+/etc/php/7.0/cli/php.ini
+</code></pre></div></div>
+
+<h2 id="input-processing">input processing</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#non exported variable used in current shell</span>
+<span class="nv">instr</span><span class="o">=</span><span class="s2">"a,b,c,d,e"</span>
+<span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">instr</span><span class="p">//,/</span><span class="nv">$\n</span><span class="k">}</span><span class="s2">"</span>  <span class="c">## Shell parameter expansion with commas replaced by newlins using echo</span>
+<span class="nv">$ </span><span class="nb">tr</span> <span class="s1">','</span> <span class="s1">'\n'</span> <span class="o">&lt;&lt;&lt;</span><span class="s2">"</span><span class="nv">$instr</span><span class="s2">"</span> <span class="c">## Shell parameter expansion with commas replaced by newlins using tr</span>
+
+<span class="nv">instr</span><span class="o">=</span><span class="s2">"a,b,c,d,e"</span>
+<span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">instr</span><span class="p">//,/ </span><span class="k">}</span><span class="s2">"</span>  <span class="c">## Shell parameter expansion with commas replaced by spaces</span>
+</code></pre></div></div>
+
+<h2 id="resources">resources</h2>
+
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-read-and-set-environmental-and-shell-variables-on-a-linux-vps">how-to-read-and-set-environmental-and-shell-variables-on-a-linux-vps</a></p>
+
+<p><a href="https://ashishb.net/all/the-first-two-statements-of-your-bash-script-should-be">the-first-two-statements-of-your-bash-script-should-be</a></p>
+
+<p><a href="https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail">safer_bash_scripts_with_set_euxo_pipefail</a></p>
+
+<p><a href="https://nickjanetakis.com/blog/allowing-for-errors-in-bash-when-you-have-set-e-defined">allowing-for-errors-in-bash-when-you-have-set-e-defined</a></p>
+
+<p><a href="https://nickjanetakis.com/blog/here-is-why-you-should-quote-your-variables-in-bash">here-is-why-you-should-quote-your-variables-in-bash</a></p>
+
+<p><a href="https://linuxize.com/post/bash-redirect-stderr-stdout">bash-redirect-stderr-stdout</a></p>
+
+<p><a href="https://medium.com/@codenameyau/step-by-step-breakdown-of-dev-null-a0f516f53158">step-by-step-breakdown-of-dev-null</a></p>
+
+<p><a href="https://stackoverflow.com/questions/9390124/whats-difference-between-21-dev-null-and-21-dev-null">whats-difference-between-21-dev-null-and-21-dev-null</a></p>
+
+<p><a href="https://unix.stackexchange.com/questions/497207/difference-between-dev-null-21-and-dev-null-dev-null">difference-between-dev-null-21-and-dev-null-dev-null</a></p>
+
+      <footer class="site-footer">
+        &copy; 2021 Areg Sarkissian
+      </footer>
+    </main>
+  </body>
+
+</html>
